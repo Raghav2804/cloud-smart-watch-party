@@ -1,0 +1,3 @@
+package com.watchparty.auth;
+import org.springframework.security.core.userdetails.*; import org.springframework.stereotype.Service;
+@Service public class UserDetailsServiceImpl implements UserDetailsService { private final UserRepository repo; public UserDetailsServiceImpl(UserRepository repo){this.repo=repo;} public UserDetails loadUserByUsername(String username){User u=repo.findByUsername(username).orElseThrow(()->new UsernameNotFoundException(username)); return org.springframework.security.core.userdetails.User.withUsername(u.getUsername()).password(u.getPassword()).roles("USER").build();}}

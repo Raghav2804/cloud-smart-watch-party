@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${room.name}">Watch room</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+    <header>
+        <a href="/rooms">← My rooms</a>
+        <form method="post" action="/logout">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button class="link">Sign out</button>
+        </form>
+    </header>
+    <main class="room-layout">
+        <section class="card player">
+            <div class="room-heading">
+                <div>
+                    <h1 th:text="${room.name}">Room</h1>
+                    <p>Room code: <strong id="room-code" th:text="${room.code}">CODE</strong> <button id="copy-code" class="small">Copy</button></p>
+                </div>
+                <span id="status" class="pill">Connecting…</span>
+            </div>
+            <div class="video">
+                <video id="video" controls th:if="${room.videoUrl}" th:src="${room.videoUrl}"></video>
+                <p th:unless="${room.videoUrl}">The host has not selected a video yet.</p>
+            </div>
+            <div class="controls">
+                <button id="sync" type="button">Sync playback</button>
+                <span id="notice" class="muted" th:text="${isHost} ? 'You control playback for this room.' : 'Playback is controlled by the host.'">Playback is controlled by the host.</span>
+            </div>
+            <h2>Room chat</h2>
+            <div id="messages" aria-live="polite"></div>
+            <form id="chat-form" class="inline">
+                <input id="chat-input" maxlength="500" placeholder="Say something…" required>
+                <button>Send</button>
+            </form>
+        </section>
+        <aside>
+            <section class="card">
+                <h2>Participants</h2>
+                <ul id="members" class="members">
+                    <li>Loading…</li>
+                </ul>
+            </section>
+            <section class="card" th:if="${isHost}">
+                <h2>Host settings</h2>
+                <form method="post" th:object="${settingsForm}" th:action="@{/room/{code}/settings(code=${room.code})}">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <label>Room name
+                        <input th:field="*{name}" maxlength="120" required />
+                        <small th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
+                    </label>
+                    <label>Video URL
+                        <input th:field="*{videoUrl}" maxlength="1000" type="url" />
+                        <small th:if="${#fields.hasErrors('videoUrl')}" th:errors="*{videoUrl}"></small>
+                    </label>
+                    <button>Save settings</button>
+                </form>
+                <form method="post" th:action="@{'/room/'+${room.code}+'/leave'}">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button class="danger">Leave room</button>
+                </form>
+            </section>
+        </aside>
+    </main>
+
+    <script th:inline="javascript">
+        window.ROOM_CODE = /*[[${room.code}]]*/ "";
+        window.IS_HOST = /*[[${isHost}]]*/ false;
+    </script>
+    <script th:src="@{/js/room.js}"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+package com.watchparty.chat; import com.watchparty.room.Room; import java.util.*; import org.springframework.data.jpa.repository.JpaRepository; public interface ChatRepository extends JpaRepository<ChatMessage,Long>{List<ChatMessage> findTop50ByRoomAndIdGreaterThanOrderByIdAsc(Room room,Long id);List<ChatMessage> findTop50ByRoomOrderByIdAsc(Room room);}
